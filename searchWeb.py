@@ -56,7 +56,7 @@ def makeHttpRequest(host, path, redirectCount=0, maxRedirects=5):
         return f"Error: {str(e)}"
 
 
-    def parseAndPrintElements(soup):
+def parseAndPrintElements(soup):
         if isinstance(soup, str) and soup.strip().startswith('{'):
             print(soup)
         else:
@@ -73,4 +73,28 @@ def makeHttpRequest(host, path, redirectCount=0, maxRedirects=5):
                         print(f"  - {element.text}")
                     else:
                         print(element.text)
+
+def searchWithGoogle(searchTerm, cache):
+    if searchTerm in cache:
+        return cache[searchTerm]
+    try:
+        host = "www.google.com"
+        searchQuery = quote(searchTerm)
+        path = f"/search?q={searchQuery}"
+        soup, _ = makeHttpRequest(host, path)
+        if soup:
+            links = soup.find_all('a')
+            searchResults = [link.get('href').split('/url?q=')[1].split('&')[0] for link in links if link.get('href').startswith('/url?q=')][:10]
+            cache[searchTerm] = searchResults
+            writeCache(cache)
+            return searchResults
+        else:
+            return "Error: Failed to fetch search results"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+
+
+
 
