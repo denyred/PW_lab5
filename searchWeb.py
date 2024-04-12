@@ -5,6 +5,7 @@ import sys
 import socket
 import json
 from urllib.parse import urlparse, quote
+from bs4 import BeautifulSoup
 
 CACHE_FILE = "cache.pkl"
 
@@ -53,3 +54,23 @@ def makeHttpRequest(host, path, redirectCount=0, maxRedirects=5):
         return body
     except Exception as e:
         return f"Error: {str(e)}"
+
+
+    def parseAndPrintElements(soup):
+        if isinstance(soup, str) and soup.strip().startswith('{'):
+            print(soup)
+        else:
+            for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'li']):
+                if element.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                    print('\n' + element.text)
+                    print('-' * len(element.text))
+                elif element.name == 'p':
+                    print('\n' + element.text)
+                elif element.name == 'a':
+                    print(f"\nURL: {element.get('href')}")
+                elif element.name in ['ul', 'li']:
+                    if element.name == 'li':
+                        print(f"  - {element.text}")
+                    else:
+                        print(element.text)
+
