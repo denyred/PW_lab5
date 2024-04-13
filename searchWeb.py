@@ -94,6 +94,45 @@ def searchWithGoogle(searchTerm, cache):
         return f"Error: {str(e)}"
 
 
+def printHelp():
+    print("Usage:")
+    print("  go2web -u <URL>            Make an HTTP request to the specified <URL> and print the response")
+    print("  go2web -s <search-term>    Make an HTTP request to search the <search-term> using Google and print top 10 results")
+    print("  go2web -h                  List available commands")
+
+def main():
+    cache = readCache()
+    if len(sys.argv) < 3:
+        printHelp()
+        return
+    if sys.argv[1] == '-u':
+        url = sys.argv[2]
+        parsed_url = urlparse(url)
+        host = parsed_url.netloc
+        path = parsed_url.path if parsed_url.path else '/'
+        response = makeHttpRequest(host, path)
+        if isinstance(response, dict):
+            parseAndPrintElements(response)
+        else:
+            print(response)
+    elif sys.argv[1] == '-s':
+        search_term = ' '.join(sys.argv[2:])
+        search_results = searchWithGoogle(search_term, cache)
+        if isinstance(search_results, list):
+            for i, url in enumerate(search_results, start=1):
+                print(f"{i}. {url}")
+        else:
+            print(search_results)
+    elif sys.argv[1] == '-h':
+        printHelp()
+    else:
+        print("Invalid option. Use '-h' for help.")
+
+if __name__ == "__main__":
+    main()
+
+
+
 
 
 
